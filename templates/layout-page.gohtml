@@ -1,0 +1,43 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="relative h-screen bg-gray-50 text-gray-950">
+    <header class="fixed top-0 w-full h-[48px] flex bg-indigo-700 justify-center text-md font-semibold text-gray-50">
+        <nav class="flex items-center justify-between w-[1152px]">
+            <div>Logo</div>
+            <div class="flex items-center gap-6">
+                <ul class="flex gap-6 py-2">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    <li>
+                        <a href="/contact">Contact</a>
+                    </li>
+                    <li>
+                        <a href="/faq">FAQ</a>
+                    </li>
+                </ul>
+                <div class="flex gap-6">
+                    <a href="/signin">Sign In</a>
+                    <a href="/signup">Sign Up</a>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <main class="w-full mt-[48px] h-screen flex justify-center">
+        <div class="w-[1152px] pt-[74px] flex justify-center">{{template "page"}}</div>
+    </main>
+    <footer class="w-full flex justify-center">
+        <div class="w-[1152px]">
+            <p>It's the footer!</p>
+        </div>
+    </footer>
+</body>
+
+</html>
