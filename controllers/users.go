@@ -12,12 +12,18 @@ type User struct {
 }
 
 func (u User) New(w http.ResponseWriter, r *http.Request) {
-	u.Templates.New.Execute(w, nil)
+	var data struct {
+		Email string
+	}
+
+	data.Email = r.FormValue("email")
+
+	u.Templates.New.Execute(w, data)
 }
 
 func (u User) Create(w http.ResponseWriter, r *http.Request) {
 	email := r.FormValue("email")
 	password := r.FormValue("password")
 
-	fmt.Fprint(w, fmt.Sprintf("Email: %s, Password: %s", email, password))
+	fmt.Fprintf(w, "Email: %s, Password: %s", email, password)
 }

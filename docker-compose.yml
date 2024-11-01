@@ -1,0 +1,17 @@
+services:
+  db:
+    image: postgres
+    restart: always
+    environment:
+      - POSTGRES_DB=goweb
+      - POSTGRES_USER=goweb
+      - POSTGRES_PASSWORD=goweb
+    ports:
+      - 5433:5432
+  adminer:
+    image: adminer
+    restart: always
+    environment:
+      ADMINER_DESIGN: dracula
+    ports:
+      - 3333:8080
