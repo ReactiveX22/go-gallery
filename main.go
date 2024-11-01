@@ -19,8 +19,8 @@ func main() {
 
 	userC := controllers.User{}
 	userC.Templates.New = views.Must(views.ParseFS(templates.FS, "layout-page.gohtml", "signup.gohtml"))
-
 	router.Get("/signup", userC.New)
+	router.Post("/users", userC.Create)
 
 	router.NotFound(controllers.StaticHanlder(views.Must(views.ParseFS(templates.FS, "layout-page.gohtml", "notFound.gohtml"))))
 
