@@ -9,6 +9,7 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/gorilla/csrf"
 )
 
 func main() {
@@ -44,6 +45,11 @@ func main() {
 
 	fmt.Println("The server is listeing on: 3000")
 
-	http.ListenAndServe("localhost:3000", router)
+	csrfKey := "8w7nD5Qjv1hN8Kd3gRqZ6L9zB0JvWp2Y"
+	csrfMw := csrf.Protect(
+		[]byte(csrfKey),
+		// TODO: make this true for production
+		csrf.Secure(false))
+	http.ListenAndServe("localhost:3000", csrfMw(router))
 
 }
