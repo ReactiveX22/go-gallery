@@ -33,8 +33,12 @@ func main() {
 		UserService: &userService,
 	}
 	userC.Templates.New = views.Must(views.ParseFS(templates.FS, "layout-page.gohtml", "signup.gohtml"))
+	userC.Templates.SignIn = views.Must(views.ParseFS(templates.FS, "layout-page.gohtml", "signin.gohtml"))
 	router.Get("/signup", userC.New)
 	router.Post("/users", userC.Create)
+	router.Get("/signin", userC.SignIn)
+	router.Post("/signin", userC.ProcessSignIn)
+	router.Get("/users/me", userC.CurrentUser)
 
 	router.NotFound(controllers.StaticHanlder(views.Must(views.ParseFS(templates.FS, "layout-page.gohtml", "notFound.gohtml"))))
 
