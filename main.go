@@ -2,6 +2,7 @@ package main
 
 import (
 	"example/web-go/controllers"
+	"example/web-go/models"
 	"example/web-go/templates"
 	"example/web-go/views"
 	"fmt"
@@ -17,7 +18,20 @@ func main() {
 	router.Get("/contact", controllers.StaticHanlder(views.Must(views.ParseFS(templates.FS, "layout-page.gohtml", "contact.gohtml"))))
 	router.Get("/faq", controllers.FAQ(views.Must(views.ParseFS(templates.FS, "layout-page.gohtml", "faq.gohtml"))))
 
-	userC := controllers.User{}
+	cfg := models.DefaultPostgresConfig()
+	db, err := models.Open(cfg)
+	if err != nil {
+		panic(err)
+	}
+	defer db.Close()
+
+	userService := models.UserService{
+		DB: db,
+	}
+
+	userC := controllers.User{
+		UserService: &userService,
+	}
 	userC.Templates.New = views.Must(views.ParseFS(templates.FS, "layout-page.gohtml", "signup.gohtml"))
 	router.Get("/signup", userC.New)
 	router.Post("/users", userC.Create)
