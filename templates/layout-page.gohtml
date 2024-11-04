@@ -26,6 +26,10 @@
                 <div class="flex gap-6">
                     <a href="/signin">Sign In</a>
                     <a href="/signup">Sign Up</a>
+                    <form action="/signout" method="post">
+                        {{csrfField}}
+                        <button type="submit">SignOut</button>
+                    </form>
                 </div>
             </div>
         </nav>

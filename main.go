@@ -30,16 +30,23 @@ func main() {
 		DB: db,
 	}
 
+	sessionService := models.SessionService{
+		DB: db,
+	}
+
 	userC := controllers.User{
-		UserService: &userService,
+		UserService:    &userService,
+		SessionService: &sessionService,
 	}
 	userC.Templates.New = views.Must(views.ParseFS(templates.FS, "layout-page.gohtml", "signup.gohtml"))
 	userC.Templates.SignIn = views.Must(views.ParseFS(templates.FS, "layout-page.gohtml", "signin.gohtml"))
+
 	router.Get("/signup", userC.New)
 	router.Post("/users", userC.Create)
 	router.Get("/signin", userC.SignIn)
 	router.Post("/signin", userC.ProcessSignIn)
 	router.Get("/users/me", userC.CurrentUser)
+	router.Post("/signout", userC.ProcessSignOut)
 
 	router.NotFound(controllers.StaticHanlder(views.Must(views.ParseFS(templates.FS, "layout-page.gohtml", "notFound.gohtml"))))
 
