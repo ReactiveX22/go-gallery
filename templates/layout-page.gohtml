@@ -27,7 +27,7 @@
                     <a href="/signin">Sign In</a>
                     <a href="/signup">Sign Up</a>
                     <form action="/signout" method="post">
-                        {{csrfField}}
+                        <div class="hidden">{{csrfField}}</div>
                         <button type="submit">SignOut</button>
                     </form>
                 </div>

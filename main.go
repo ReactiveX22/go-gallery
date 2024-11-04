@@ -2,6 +2,7 @@ package main
 
 import (
 	"example/web-go/controllers"
+	"example/web-go/migrations"
 	"example/web-go/models"
 	"example/web-go/templates"
 	"example/web-go/views"
@@ -25,6 +26,11 @@ func main() {
 		panic(err)
 	}
 	defer db.Close()
+
+	err = models.MigrateFS(db, migrations.FS, ".")
+	if err != nil {
+		panic(err)
+	}
 
 	userService := models.UserService{
 		DB: db,
