@@ -24,12 +24,15 @@
                     </li>
                 </ul>
                 <div class="flex gap-6">
-                    <a href="/signin">Sign In</a>
-                    <a href="/signup">Sign Up</a>
+                    {{if currentUser}}
                     <form action="/signout" method="post">
                         <div class="hidden">{{csrfField}}</div>
                         <button type="submit">SignOut</button>
                     </form>
+                    {{else}}
+                    <a href="/signin">Sign In</a>
+                    <a href="/signup">Sign Up</a>
+                    {{end}}
                 </div>
             </div>
         </nav>
