@@ -27,7 +27,7 @@ type SessionService struct {
 
 func (ss SessionService) Create(userID int) (*Session, error) {
 
-	newToken, err := NewToken(ss.BytesPerToken)
+	newToken, err := newToken(ss.BytesPerToken)
 
 	if err != nil {
 		return nil, fmt.Errorf("create sesion: %w", err)
@@ -92,7 +92,7 @@ type Token struct {
 	TokenHash string
 }
 
-func NewToken(bytesPerToken int) (*Token, error) {
+func newToken(bytesPerToken int) (*Token, error) {
 	if bytesPerToken < MinBytesPerToken {
 		bytesPerToken = MinBytesPerToken
 	}
