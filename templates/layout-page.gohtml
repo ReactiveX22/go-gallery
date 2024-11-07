@@ -37,14 +37,40 @@
             </div>
         </nav>
     </header>
+
     <main class="w-full mt-[48px] h-screen flex justify-center">
-        <div class="w-[1152px] pt-[74px] flex justify-center">{{template "page" .}}</div>
+        <div class="w-[1152px] pt-[74px] relative">
+            <!-- Error -->
+            {{if errors}}
+            <div class="my-4 fixed top-[48px] left-1/2 transform -translate-x-1/2 flex flex-col gap-2 justify-center">
+                {{range errors}}
+                <div
+                    class="closeable flex justify-between gap-4 rounded-md p-2 bg-gray-50 shadow-md border border-red-500 text-red-600">
+                    <p>{{.}}</p>
+                    <a href="#" onclick="closeAlert(event)"><svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                            viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                        </svg>
+                    </a>
+                </div>
+                {{end}}
+            </div>
+            {{end}}
+            <div>{{template "page" .}}</div>
+        </div>
     </main>
-    <footer class="w-full flex justify-center">
+    <footer class="w-full bg-gray-900 text-gray-100 flex justify-center">
         <div class="w-[1152px]">
             <p>It's the footer!</p>
         </div>
     </footer>
+    <script>
+        const closeAlert = (event) => {
+            let closeAble = event.target.closest(".closeable");
+            closeAble.remove();
+        }
+    </script>
 </body>
 
 </html>

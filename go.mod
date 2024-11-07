@@ -5,6 +5,7 @@ go 1.23.2
 require (
 	github.com/go-chi/chi/v5 v5.1.0
 	github.com/gorilla/csrf v1.7.2
+	github.com/jackc/pgerrcode v0.0.0-20240316143900-6e2875d9b438
 	github.com/jackc/pgx/v5 v5.7.1
 	github.com/joho/godotenv v1.5.1
 	github.com/pressly/goose/v3 v3.22.1

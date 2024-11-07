@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"example/web-go/context"
+	"example/web-go/errors"
 	"example/web-go/models"
 	"fmt"
 	"net/http"
@@ -33,14 +34,20 @@ func (u User) New(w http.ResponseWriter, r *http.Request) {
 }
 
 func (u User) Create(w http.ResponseWriter, r *http.Request) {
-	email := r.FormValue("email")
-	password := r.FormValue("password")
+	var data struct {
+		Email    string
+		Password string
+	}
+	data.Email = r.FormValue("email")
+	data.Password = r.FormValue("password")
 
-	user, err := u.UserService.Create(email, password)
+	user, err := u.UserService.Create(data.Email, data.Password)
 
 	if err != nil {
-		fmt.Println(err)
-		http.Error(w, "Something went wrong", http.StatusInternalServerError)
+		if errors.Is(err, models.ErrEmailTaken) {
+			err = errors.Public(err, "Email is already in use.")
+		}
+		u.Templates.New.Execute(w, r, data, err)
 		return
 	}
 
