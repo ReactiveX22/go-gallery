@@ -1,9 +1,15 @@
 -- +goose Up
 -- +goose StatementBegin
-SELECT 'up SQL query';
--- +goose StatementEnd
+CREATE TABLE
+    galleries (
+        id SERIAL PRIMARY KEY,
+        user_id INT NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+        title TEXT NOT NULL
+    );
 
+-- +goose StatementEnd
 -- +goose Down
 -- +goose StatementBegin
-SELECT 'down SQL query';
+DROP TABLE galleries;
+
 -- +goose StatementEnd

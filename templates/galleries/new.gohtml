@@ -1,0 +1,20 @@
+{{define "page"}}
+
+<div class="flex justify-center">
+    <div class="w-[392px] border border-gray-300 bg-gray-50 h-fit rounded-lg shadow-md p-7 flex flex-col gap-6">
+        <h1 class="text-3xl font-semibold">Create New Gallery</h1>
+        <form action="/galleries" method="post" class="flex flex-col gap-4">
+            <div class="hidden">{{csrfField}}</div>
+            <div class="flex flex-col gap-2">
+                <label for="title" class="font-medium">Gallery Title</label>
+                <input type="text" id="title" name="title" placeholder="Title" value="{{.Title}}"
+                    class="rounded-md border border-gray-300 p-2" required {{if not .Title }}autofocus{{end}}>
+            </div>
+            <button type="submit"
+                class="flex w-[75%] justify-center self-center my-4 items-center rounded-md bg-indigo-700 px-4 py-2 text-gray-100">Create
+                Gallery</button>
+        </form>
+    </div>
+</div>
+
+{{end}}

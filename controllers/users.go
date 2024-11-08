@@ -61,7 +61,7 @@ func (u User) Create(w http.ResponseWriter, r *http.Request) {
 
 	setCookie(w, CookieSession, session.Token)
 
-	http.Redirect(w, r, "/users/me", http.StatusFound)
+	http.Redirect(w, r, "/galleries", http.StatusFound)
 }
 
 func (u User) SignIn(w http.ResponseWriter, r *http.Request) {
@@ -91,7 +91,7 @@ func (u User) ProcessSignIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	setCookie(w, CookieSession, session.Token)
-	http.Redirect(w, r, "/users/me", http.StatusFound)
+	http.Redirect(w, r, "/galleries/new", http.StatusFound)
 }
 
 func (u User) CurrentUser(w http.ResponseWriter, r *http.Request) {

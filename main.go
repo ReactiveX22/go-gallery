@@ -85,12 +85,15 @@ func main() {
 		DB: db,
 	}
 	emailService := models.NewEmailService(cfg.SMTP)
+	galleryService := &models.GalleryService{
+		DB: db,
+	}
 
 	// Setup middelwares
 	umw := controllers.UserMiddleware{
 		SessionService: sessionService,
 	}
-	csrfMw := csrf.Protect([]byte(cfg.CSRF.Key), csrf.Secure(cfg.CSRF.Secure))
+	csrfMw := csrf.Protect([]byte(cfg.CSRF.Key), csrf.Secure(cfg.CSRF.Secure), csrf.Path("/"))
 
 	// Setup Controllers
 	userC := controllers.User{
@@ -104,6 +107,15 @@ func main() {
 	userC.Templates.ForgotPassword = views.Must(views.ParseFS(templates.FS, "layout-page.gohtml", "forgot-pw.gohtml"))
 	userC.Templates.ResetPassword = views.Must(views.ParseFS(templates.FS, "layout-page.gohtml", "reset-pw.gohtml"))
 	userC.Templates.CheckYourEmail = views.Must(views.ParseFS(templates.FS, "layout-page.gohtml", "check-your-email.gohtml"))
+	userC.Templates.CheckYourEmail = views.Must(views.ParseFS(templates.FS, "layout-page.gohtml", "check-your-email.gohtml"))
+
+	galleriesC := controllers.Galleries{
+		GalleryService: galleryService,
+	}
+	galleriesC.Templates.Index = views.Must(views.ParseFS(templates.FS, "layout-page.gohtml", "galleries/index.gohtml"))
+	galleriesC.Templates.Show = views.Must(views.ParseFS(templates.FS, "layout-page.gohtml", "galleries/show.gohtml"))
+	galleriesC.Templates.New = views.Must(views.ParseFS(templates.FS, "layout-page.gohtml", "galleries/new.gohtml"))
+	galleriesC.Templates.Edit = views.Must(views.ParseFS(templates.FS, "layout-page.gohtml", "galleries/edit.gohtml"))
 
 	// Setup r and routes
 	r := chi.NewRouter()
@@ -120,6 +132,20 @@ func main() {
 		r.Use(umw.RequireUser)
 		r.Get("/", userC.CurrentUser)
 	})
+	r.Route("/galleries", func(r chi.Router) {
+		r.Group(func(r chi.Router) {
+			r.Use(umw.RequireUser)
+			r.Get("/new", galleriesC.New)
+			r.Get("/{id}/edit", galleriesC.Edit)
+			r.Post("/{id}/delete", galleriesC.Delete)
+			r.Get("/", galleriesC.Index)
+			r.Get("/{id}", galleriesC.Index)
+			r.Post("/", galleriesC.Create)
+			r.Post("/{id}", galleriesC.Update)
+		})
+		r.Get("/{id}", galleriesC.Show)
+	})
+
 	r.Route("/app", func(r chi.Router) {
 
 	})

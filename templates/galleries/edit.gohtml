@@ -1,0 +1,62 @@
+{{define "page"}}
+
+<div class="flex justify-center">
+    <div class="w-[392px] border border-gray-300 bg-gray-50 h-fit rounded-lg shadow-md p-7 flex flex-col gap-6">
+        <h1 class="text-3xl font-semibold">Edit Gallery</h1>
+        <form action="/galleries/{{.ID}}" method="post" class="flex flex-col gap-4">
+            <div class="hidden">{{csrfField}}</div>
+            <div class="flex flex-col gap-2">
+                <label for="title" class="font-medium">Gallery Title</label>
+                <input type="text" id="title" name="title" placeholder="Title" value="{{.Title}}"
+                    class="rounded-md border border-gray-300 p-2" required {{if not .Title }}autofocus{{end}}>
+            </div>
+            <button type="submit"
+                class="flex w-[75%] justify-center self-center my-4 items-center rounded-md bg-indigo-700 px-4 py-2 text-gray-100">Update
+                Gallery</button>
+        </form>
+
+        <div class="mt-6 flex flex-col gap-4">
+            <div id="danger-zone-btn" class="flex gap-4 items-center text-red-600 cursor-pointer select-none"
+                onclick="toggleDangerZone(this)">
+                <h2 class=" font-semibold">Danger Zone</h2>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.0"
+                    stroke="currentColor" class="size-5 transition-all duration-200">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                </svg>
+            </div>
+
+            <form action="/galleries/{{.ID}}/delete" id="danger-zone-form" method="post"
+                onsubmit="return confirm('Do you really want to delete this gallery?')" class="flex-col gap-4 hidden">
+                <div class="hidden">{{csrfField}}</div>
+                <button type="submit"
+                    class="flex justify-center self-center items-center rounded-md bg-red-600 px-4 py-2 text-gray-100">Delete
+                    Gallery</button>
+            </form>
+
+            <script>
+                function toggleDangerZone(btn) {
+                    const form = btn.nextElementSibling;
+                    const svg = btn.querySelector('svg');
+
+                    if (form !== null) {
+                        if (form.classList.contains('hidden')) {
+                            form.classList.remove('hidden');
+                            form.classList.add('flex');
+                        } else if (form.classList.contains('flex')) {
+                            form.classList.remove('flex');
+                            form.classList.add('hidden');
+                        }
+                        // Rotate the SVG by 180 degrees
+                        if (svg.style.transform === 'rotate(180deg)') {
+                            svg.style.transform = 'rotate(0deg)';
+                        } else {
+                            svg.style.transform = 'rotate(180deg)';
+                        }
+                    }
+                }
+            </script>
+        </div>
+    </div>
+</div>
+
+{{end}}

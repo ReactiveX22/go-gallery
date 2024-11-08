@@ -7,9 +7,10 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
-<body class="relative h-screen bg-gray-50 text-gray-950">
-    <header class="fixed top-0 w-full h-[48px] flex bg-indigo-700 justify-center text-md font-semibold text-gray-50">
-        <nav class="flex items-center justify-between w-[1152px]">
+<body class="relative flex flex-col min-h-[calc(100vh+96px)] bg-gray-50 text-gray-950">
+    <header
+        class="fixed z-10 top-0 w-full h-[48px] flex bg-indigo-700 justify-center text-md font-semibold text-gray-50">
+        <nav class="flex items-center px-4 justify-between w-[1152px]">
             <div>Logo</div>
             <div class="flex items-center gap-6">
                 <ul class="flex gap-6 py-2">
@@ -29,6 +30,8 @@
                         <div class="hidden">{{csrfField}}</div>
                         <button type="submit">SignOut</button>
                     </form>
+                    <a href="/galleries/new">Create Gallery</a>
+                    <a href="/galleries/">Galleries</a>
                     {{else}}
                     <a href="/signin">Sign In</a>
                     <a href="/signup">Sign Up</a>
@@ -38,7 +41,7 @@
         </nav>
     </header>
 
-    <main class="w-full mt-[48px] h-screen flex justify-center">
+    <main class="w-full flex-grow mt-[48px] flex justify-center">
         <div class="w-[1152px] pt-[74px] relative">
             <!-- Error -->
             {{if errors}}
@@ -57,10 +60,10 @@
                 {{end}}
             </div>
             {{end}}
-            <div>{{template "page" .}}</div>
+            <div class="h-full flex-grow">{{template "page" .}}</div>
         </div>
     </main>
-    <footer class="w-full bg-gray-900 text-gray-100 flex justify-center">
+    <footer class="w-full h-[96px] mt-6 bg-gray-900 text-gray-100 flex justify-center">
         <div class="w-[1152px]">
             <p>It's the footer!</p>
         </div>

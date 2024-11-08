@@ -1,0 +1,37 @@
+{{define "page"}}
+<div class="w-[760px] mx-auto flex flex-col gap-8 px-4">
+    <h1 class="font-bold text-2xl">My Galleries</h1>
+
+    <div>
+        <table class="table-auto w-full border-collapse">
+            <colgroup>
+                <!-- ID column spans 2 columns -->
+                <col class="w-1/12">
+                <!-- Title column takes the remaining space -->
+                <col class="w-auto">
+                <!-- Actions column spans 3 columns -->
+                <col class="w-1/4">
+            </colgroup>
+            <thead>
+                <tr class="border-b border-zinc-950/50 text-left">
+                    <th class="p-2">ID</th>
+                    <th class="p-2">Title</th>
+                    <th class="p-2">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{ range .Galleries }}
+                <tr class="border-b border-blue-600/50">
+                    <td class="p-2">{{ .ID }}</td>
+                    <td class="p-2 font-semibold">{{ .Title }}</td>
+                    <td class="p-2 flex gap-6">
+                        <a href="/galleries/{{ .ID }}" class="text-blue-500 underline">View</a>
+                        <a href="/galleries/{{ .ID }}/edit" class="text-blue-500 underline">Edit</a>
+                    </td>
+                </tr>
+                {{ end }}
+            </tbody>
+        </table>
+    </div>
+</div>
+{{end}}
