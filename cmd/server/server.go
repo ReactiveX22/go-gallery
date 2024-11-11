@@ -45,7 +45,7 @@ func loadEnvConfig() (config, error) {
 		SSLMode:  os.Getenv("PSQL_SSLMODE"),
 	}
 	if cfg.PSQL.Host == "" && cfg.PSQL.Port == "" {
-		return cfg, fmt.Errorf("no PSQL config provided.")
+		return cfg, fmt.Errorf("no PSQL config provided")
 	}
 
 	cfg.SMTP.Host = os.Getenv("SMTP_HOST")
@@ -71,15 +71,23 @@ func main() {
 		panic(err)
 	}
 
+	err = run(cfg)
+	if err != nil {
+		panic(err)
+	}
+}
+
+func run(cfg config) error {
+
 	// Setup the database
 	db, err := models.Open(cfg.PSQL)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	defer db.Close()
 	err = models.MigrateFS(db, migrations.FS, ".")
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	// Setup services
@@ -136,10 +144,7 @@ func main() {
 	r.Post("/users", userC.Create)
 	r.Get("/signin", userC.SignIn)
 	r.Post("/signin", userC.ProcessSignIn)
-	r.Route("/users/me", func(r chi.Router) {
-		r.Use(umw.RequireUser)
-		r.Get("/", userC.CurrentUser)
-	})
+
 	r.Route("/galleries", func(r chi.Router) {
 		r.Get("/{id}", galleriesC.Show)
 		r.Get("/{id}/images/{filename}", galleriesC.Image)
@@ -158,9 +163,9 @@ func main() {
 		r.Get("/{id}", galleriesC.Show)
 	})
 
-	r.Route("/app", func(r chi.Router) {
+	assetHandler := http.FileServer(http.Dir("assets"))
+	r.Get("/assets/*", http.StripPrefix("/assets", assetHandler).ServeHTTP)
 
-	})
 	r.Post("/signout", userC.ProcessSignOut)
 	r.Get("/forgot-pw", userC.ForgotPassword)
 	r.Post("/forgot-pw", userC.ProcessForgotPassword)
@@ -170,8 +175,5 @@ func main() {
 
 	// Start the server
 	fmt.Printf("The server is listeing on: %s...\n", cfg.Server.Address)
-	err = http.ListenAndServe(cfg.Server.Address, r)
-	if err != nil {
-		panic(err)
-	}
+	return http.ListenAndServe(cfg.Server.Address, r)
 }
