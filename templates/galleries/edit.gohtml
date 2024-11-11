@@ -1,11 +1,11 @@
 {{define "page"}}
 
 <div class="flex flex-col gap-6 justify-center">
-    <div class="w-fit border border-gray-300 bg-gray-50 h-fit flex-col rounded-lg shadow-md p-7 flex gap-6">
+    <div class="w-full border border-gray-300 bg-gray-50 h-fit flex-col rounded-lg shadow-md p-7 flex gap-6">
         <h1 class="text-3xl font-semibold">Edit Gallery</h1>
 
-        <div class="flex gap-6">
-            <form action="/galleries/{{.ID}}" method="post" class="flex flex-col gap-4">
+        <div class="flex justify-between">
+            <form action="/galleries/{{.ID}}" method="post" class="flex h-full flex-col w-[264px] justify-between">
                 <div class="hidden">{{csrfField}}</div>
                 <div class="flex flex-col gap-2">
                     <label for="title" class="font-medium">Gallery Title</label>
@@ -13,10 +13,13 @@
                         class="rounded-md border border-gray-300 p-2" required {{if not .Title }}autofocus{{end}}>
                 </div>
                 <button type="submit"
-                    class="flex w-[75%] justify-center self-end my-4 items-center rounded-md bg-indigo-700 px-4 py-2 text-gray-100">Update
+                    class="flex justify-center self-end my-4 items-center rounded-md bg-indigo-700 px-4 py-2 text-gray-100">Update
                     Gallery</button>
             </form>
-            <div class="mt-6 flex flex-col gap-14">
+            <div>
+                {{template "upload_image_form" .}}
+            </div>
+            <div class="flex flex-col w-[264px] gap-4">
                 <div id="danger-zone-btn" class="flex gap-4 items-center text-red-600 cursor-pointer select-none"
                     onclick="toggleDangerZone(this)">
                     <h2 class=" font-semibold">Danger Zone</h2>
@@ -58,10 +61,6 @@
         </div>
     </div>
 
-    <div>
-        {{template "upload_image_form" .}}
-    </div>
-
     <div class="w-full mx-auto flex flex-col gap-8 px-4">
         <h1 class="font-bold text-2xl">{{.Title}}</h1>
 
@@ -87,7 +86,7 @@
 
 {{define "delete_image_form"}}
 <form action="/galleries/{{.GalleryID}}/images/{{.FilenameEscaped}}/delete" method="post"
-    onsubmit="return confirm('Do you really want to delete this image?')" class="flex-col gap-4">
+    onsubmit="return confirm('Do you really want to delete this image?')" class="flex flex-col gap-4">
     <div class="hidden">{{csrfField}}</div>
     <button type="submit"
         class="flex justify-center text-xs self-center items-center rounded-md bg-red-600 px-4 py-2 text-gray-100">Delete</button>
@@ -95,15 +94,16 @@
 {{end}}
 
 {{define "upload_image_form"}}
-<form action="/galleries/{{.ID}}/images" method="post" enctype="multipart/form-data" class="flex-col gap-4">
+<form action="/galleries/{{.ID}}/images" method="post" enctype="multipart/form-data"
+    class="flex w-[264px] h-full flex-col justify-between">
     <div class="hidden">{{csrfField}}</div>
-
-    <div class="flex flex-col gap-6">
+    <div class="flex flex-col gap-2">
         <div class="flex flex-col">
-            <label for="images">Add Images</label>
-            <p class="text-zinc-600 text-sm">(png, jpg, jpeg, gif)</p>
+            <label for="images" class="font-medium">Add Images <span class="text-zinc-600 text-sm">(png, jpg, jpeg,
+                    gif)</span></label>
+
+            <input type="file" multiple name="images" accept="image/png, image/jpg, image/jpeg, image/gif" class="my-2">
         </div>
-        <input type="file" multiple name="images" accept="image/png, image/jpg, image/jpeg, image/gif">
     </div>
 
     <button type="submit"

@@ -36,9 +36,8 @@ func loadEnvConfig() (config, error) {
 		return cfg, fmt.Errorf("load env: %w", err)
 	}
 
-	// todo psql
 	cfg.PSQL = models.DefaultPostgresConfig()
-	// todo smtp
+
 	cfg.SMTP.Host = os.Getenv("SMTP_HOST")
 	portStr := os.Getenv("SMTP_PORT")
 	cfg.SMTP.Port, err = strconv.Atoi(portStr)
@@ -47,10 +46,9 @@ func loadEnvConfig() (config, error) {
 	}
 	cfg.SMTP.Username = os.Getenv("SMTP_USERNAME")
 	cfg.SMTP.Password = os.Getenv("SMTP_PASSWORD")
-	// todo csrf
+
 	cfg.CSRF.Key = "8w7nD5Qjv1hN8Kd3gRqZ6L9zB0JvWp2Y"
 	cfg.CSRF.Secure = false
-	// server
 	cfg.Server.Address = "localhost:3000"
 
 	return cfg, nil
