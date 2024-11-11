@@ -5,8 +5,9 @@ import (
 	"example/web-go/context"
 	"example/web-go/models"
 	"fmt"
-	"math/rand/v2"
 	"net/http"
+	"net/url"
+	"path/filepath"
 	"strconv"
 
 	"github.com/go-chi/chi/v5"
@@ -81,20 +82,33 @@ func (g Galleries) Show(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Something Went Wrong", http.StatusInternalServerError)
 		return
 	}
+	type Image struct {
+		GalleryID       int
+		Filename        string
+		FilenameEscaped string
+	}
 	var data struct {
 		ID     int
 		Title  string
-		Images []string
+		Images []Image
 	}
 
 	data.ID = gallery.ID
 	data.Title = gallery.Title
 
-	for i := 0; i < 20; i++ {
-		w, h := rand.IntN(500)+200, rand.IntN(500)+200
-		catImageURL := fmt.Sprintf("https://placecats.com/%d/%d", w, h)
+	images, err := g.GalleryService.Images(gallery.ID)
+	if err != nil {
+		fmt.Println(err)
+		http.Error(w, "Something Went Wrong", http.StatusInternalServerError)
+		return
+	}
 
-		data.Images = append(data.Images, catImageURL)
+	for _, img := range images {
+		data.Images = append(data.Images, Image{
+			GalleryID:       img.GalleryID,
+			Filename:        img.Filename,
+			FilenameEscaped: url.PathEscape(img.Filename),
+		})
 	}
 
 	g.Templates.Show.Execute(w, r, data)
@@ -107,13 +121,34 @@ func (g Galleries) Edit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	type Image struct {
+		GalleryID       int
+		Filename        string
+		FilenameEscaped string
+	}
 	var data struct {
-		ID    int
-		Title string
+		ID     int
+		Title  string
+		Images []Image
 	}
 
 	data.ID = gallery.ID
 	data.Title = gallery.Title
+
+	images, err := g.GalleryService.Images(gallery.ID)
+	if err != nil {
+		fmt.Println(err)
+		http.Error(w, "Something Went Wrong", http.StatusInternalServerError)
+		return
+	}
+
+	for _, img := range images {
+		data.Images = append(data.Images, Image{
+			GalleryID:       img.GalleryID,
+			Filename:        img.Filename,
+			FilenameEscaped: url.PathEscape(img.Filename),
+		})
+	}
 
 	g.Templates.Edit.Execute(w, r, data)
 }
@@ -153,9 +188,103 @@ func (g Galleries) Delete(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, editPath, http.StatusFound)
 }
 
-type galleryOpt func(http.ResponseWriter, *http.Request, *models.Gallary) error
+func (g Galleries) Image(w http.ResponseWriter, r *http.Request) {
+	filename := g.filename(r)
 
-func (g Galleries) galleryByID(w http.ResponseWriter, r *http.Request, opts ...galleryOpt) (*models.Gallary, error) {
+	galleryID, err := strconv.Atoi(chi.URLParam(r, "id"))
+	if err != nil {
+		http.Error(w, "Invalid ID", http.StatusNotFound)
+		return
+	}
+	image, err := g.GalleryService.Image(galleryID, filename)
+	if err != nil {
+		if errors.Is(err, models.ErrNotFound) {
+			http.Error(w, "Image not found", http.StatusNotFound)
+			return
+		}
+		fmt.Println(err)
+		http.Error(w, "Something Went Wrong", http.StatusInternalServerError)
+		return
+	}
+
+	http.ServeFile(w, r, image.Path)
+}
+
+func (g Galleries) UploadImage(w http.ResponseWriter, r *http.Request) {
+	gallery, err := g.galleryByID(w, r, userMustOwnGallery)
+	if err != nil {
+		http.Error(w, "Invalid ID", http.StatusNotFound)
+		return
+	}
+
+	err = r.ParseMultipartForm(5 << 20) // 5mb
+	if err != nil {
+		fmt.Println(err)
+		http.Error(w, "Something Went Wrong", http.StatusInternalServerError)
+		return
+	}
+
+	fileHeaders := r.MultipartForm.File["images"]
+
+	for _, filHeader := range fileHeaders {
+		file, err := filHeader.Open()
+		if err != nil {
+			http.Error(w, "Something Went Wrong", http.StatusInternalServerError)
+			return
+		}
+		defer file.Close()
+		err = g.GalleryService.CreateImage(gallery.ID, filHeader.Filename, file)
+		if err != nil {
+			var fileErr models.FileError
+			if errors.As(err, &fileErr) {
+				msg := fmt.Sprintf("%v has an invalid content type or extension. Only png, jpg, jpeg, gif files are allowed.", filHeader.Filename)
+				http.Error(w, msg, http.StatusBadRequest)
+				return
+			}
+			http.Error(w, "Something Went Wrong", http.StatusInternalServerError)
+			return
+		}
+	}
+
+	editPath := fmt.Sprintf("/galleries/%d/edit", gallery.ID)
+
+	http.Redirect(w, r, editPath, http.StatusFound)
+
+}
+
+func (g Galleries) DeleteImage(w http.ResponseWriter, r *http.Request) {
+	filename := g.filename(r)
+
+	gallery, err := g.galleryByID(w, r, userMustOwnGallery)
+	if err != nil {
+		http.Error(w, "Invalid ID", http.StatusNotFound)
+		return
+	}
+	err = g.GalleryService.DeleteImage(gallery.ID, filename)
+	if err != nil {
+		if errors.Is(err, models.ErrNotFound) {
+			http.Error(w, "Image not found", http.StatusNotFound)
+			return
+		}
+		fmt.Println(err)
+		http.Error(w, "Something Went Wrong", http.StatusInternalServerError)
+		return
+	}
+
+	editPath := fmt.Sprintf("/galleries/%d/edit", gallery.ID)
+
+	http.Redirect(w, r, editPath, http.StatusFound)
+}
+
+type galleryOpt func(http.ResponseWriter, *http.Request, *models.Gallery) error
+
+func (g Galleries) filename(r *http.Request) string {
+	filename := chi.URLParam(r, "filename")
+	filename = filepath.Base(filename)
+	return filename
+}
+
+func (g Galleries) galleryByID(w http.ResponseWriter, r *http.Request, opts ...galleryOpt) (*models.Gallery, error) {
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 
 	if err != nil {
@@ -184,7 +313,7 @@ func (g Galleries) galleryByID(w http.ResponseWriter, r *http.Request, opts ...g
 	return gallery, nil
 }
 
-func userMustOwnGallery(w http.ResponseWriter, r *http.Request, gallery *models.Gallary) error {
+func userMustOwnGallery(w http.ResponseWriter, r *http.Request, gallery *models.Gallery) error {
 	user := context.User(r.Context())
 
 	if gallery.UserID != user.ID {

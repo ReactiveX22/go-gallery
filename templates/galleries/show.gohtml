@@ -3,9 +3,11 @@
     <h1 class="font-bold text-2xl">{{.Title}}</h1>
 
     <div>
-        <div class="columns-4 space-y-4 gap-4">
+        <div class="columns-4 space-y-4 space-x-4">
             {{range .Images}}
-            <img src="{{.}}" alt="Image">
+            <a href="/galleries/{{.GalleryID}}/images/{{.FilenameEscaped}}">
+                <img src="/galleries/{{.GalleryID}}/images/{{.FilenameEscaped}}" alt="{{.FilenameEscaped}}">
+            </a>
             {{end}}
         </div>
     </div>
